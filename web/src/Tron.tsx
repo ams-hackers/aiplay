@@ -7,7 +7,9 @@ class Tron extends Component {
     this.canvas = element;
   };
 
-  componentDidMount() {}
+  componentDidMount() {
+    return;
+  }
 
   render() {
     return <canvas ref={this.registerCanvas} />;
