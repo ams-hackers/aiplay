@@ -1,8 +1,16 @@
 import React, { Component } from "react";
 
 class Tron extends Component {
+  canvas: HTMLCanvasElement | null = null;
+
+  registerCanvas = (element: HTMLCanvasElement) => {
+    this.canvas = element;
+  };
+
+  componentDidMount() {}
+
   render() {
-    return <div>Viewer</div>;
+    return <canvas ref={this.registerCanvas} />;
   }
 }
 
