@@ -1,5 +1,11 @@
-import * as React from "react";
+import React from "react";
+import Tron from "./Tron";
 
 export default function App() {
-  return <div>Hello AI</div>;
+  return (
+    <div>
+      <h1>Hello AI</h1>
+      <Tron />
+    </div>
+  );
 }
