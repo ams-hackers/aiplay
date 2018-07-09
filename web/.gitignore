@@ -7,3 +7,4 @@ npm-debug.log
 .cache/
 dist/
 *.bs.js
+yarn-error.log
