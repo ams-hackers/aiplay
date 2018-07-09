@@ -1,0 +1,17 @@
+# Some commonly used options have been documented as comments in this file.
+# For advanced use and comprehensive documentation of the format, please see:
+# https://docs.haskellstack.org/en/stable/yaml_configuration/
+
+# Resolver to choose a 'specific' stackage snapshot or a compiler version.
+resolver: lts-12.0
+
+# User packages to be built.
+packages:
+- .
+
+# Override default flag values for local packages and extra-deps
+# flags: {}
+
+# Override the architecture used by stack, especially useful on Windows
+# arch: i386
+# arch: x86_64
