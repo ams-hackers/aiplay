@@ -14,6 +14,10 @@ dependencies:
   - base >= 4.7 && < 5
 
 executables:
+  aiplay-manager:
+    source-dirs:      manager
+    main:             Main.hs
+
   aiplay-referee-tron:
     source-dirs:      referee-tron
     main:             Main.hs
