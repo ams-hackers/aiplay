@@ -15,3 +15,4 @@ FROM debian:9
 RUN apt-get update && apt-get install libgmp10
 COPY --from=build /usr/local/bin/aiplay-manager /usr/local/bin/
 COPY --from=build /usr/local/bin/aiplay-referee-tron /usr/local/bin/
+COPY --from=build /usr/local/bin/aiplay-dummy-player /usr/local/bin/

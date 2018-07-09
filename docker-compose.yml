@@ -18,3 +18,9 @@ services:
       context: .
       dockerfile: Dockerfile.hs
     command: [aiplay-referee-tron]
+
+  dummy-player:
+    build:
+      context: .
+      dockerfile: Dockerfile.hs
+    command: [aiplay-dummy-player]
