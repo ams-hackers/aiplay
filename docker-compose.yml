@@ -1,0 +1,20 @@
+version: "3"
+services:
+  postgres:
+    image: postgres:10
+    restart: always
+    environment:
+      POSTGRES_USER: aiplay
+      POSTGRES_PASSWORD: aiplay
+
+  manager:
+    build:
+      context: .
+      dockerfile: Dockerfile.hs
+    command: [aiplay-manager]
+
+  referee-tron:
+    build:
+      context: .
+      dockerfile: Dockerfile.hs
+    command: [aiplay-referee-tron]
