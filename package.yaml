@@ -12,11 +12,19 @@ extra-source-files:
 
 dependencies:
   - base >= 4.7 && < 5
+  - text
+  - bytestring
 
 executables:
   aiplay-manager:
     source-dirs:      manager
     main:             Main.hs
+    dependencies:
+      - directory
+      - filepath
+      - postgresql-simple
+      - cryptonite
+      - memory
 
   aiplay-referee-tron:
     source-dirs:      referee-tron

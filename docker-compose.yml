@@ -6,6 +6,8 @@ services:
     environment:
       POSTGRES_USER: aiplay
       POSTGRES_PASSWORD: aiplay
+    ports:
+      - 5432:5432
 
   manager:
     build:
