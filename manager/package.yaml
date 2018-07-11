@@ -1,4 +1,4 @@
-name:                aiplay
+name:                aiplay-manager
 version:             0.1.0.0
 #synopsis:
 #description:
@@ -7,8 +7,6 @@ license:             BSD3
 author:              David Vázquez Púa
 maintainer:          davazp@gmail.com
 copyright:           2018 David Vázquez Púa
-extra-source-files:
-  - README.md
 
 dependencies:
   - base >= 4.7 && < 5
@@ -16,21 +14,17 @@ dependencies:
   - bytestring
   - containers
 
+library:
+  source-dirs: src
+  dependencies:
+    - directory
+    - filepath
+    - postgresql-simple
+    - cryptonite
+    - memory
+    
 executables:
   aiplay-manager:
-    source-dirs:      manager
     main:             Main.hs
     dependencies:
-      - directory
-      - filepath
-      - postgresql-simple
-      - cryptonite
-      - memory
-
-  aiplay-referee-tron:
-    source-dirs:      referee-tron
-    main:             Main.hs
-
-  aiplay-dummy-player:
-    source-dirs:      dummy-player
-    main:             Main.hs
+      - aiplay-manager

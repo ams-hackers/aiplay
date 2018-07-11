@@ -1,0 +1,16 @@
+name:                aiplay-dummy-player
+version:             0.1.0.0
+#synopsis:
+#description:
+homepage:            https://github.com/davazp/aiplay#readme
+license:             BSD3
+author:              David Vázquez Púa
+maintainer:          davazp@gmail.com
+copyright:           2018 David Vázquez Púa
+
+dependencies:
+  - base >= 4.7 && < 5
+
+executables:
+  aiplay-dummy-player:
+    main:             Main.hs
