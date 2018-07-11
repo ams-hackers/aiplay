@@ -16,40 +16,20 @@ dependencies:
   - bytestring
   - containers
 
-library:
-  # HACK: stack doesn't work without a main library if there is
-  # internal libraries. This has been fixed in master and it is
-  # pending of release:
-  #
-  # https://github.com/commercialhaskell/stack/issues/3787
-  dependencies: aiplay-referee-tron-lib
-
-internal-libraries:
-  aiplay-manager-lib:
-    source-dirs: manager/src
+executables:
+  aiplay-manager:
+    source-dirs:      manager
+    main:             Main.hs
     dependencies:
       - directory
       - filepath
       - postgresql-simple
       - cryptonite
       - memory
-      
-  aiplay-referee-tron-lib:
-    source-dirs: referee-tron/src
-
-    
-executables:
-  aiplay-manager:
-    source-dirs:      manager
-    main:             Main.hs
-    dependencies:
-      - aiplay-manager-lib
 
   aiplay-referee-tron:
     source-dirs:      referee-tron
     main:             Main.hs
-    dependencies:
-      - aiplay-referee-tron-lib
 
   aiplay-dummy-player:
     source-dirs:      dummy-player
