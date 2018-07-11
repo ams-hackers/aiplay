@@ -1,4 +1,4 @@
-module Game where
+module Game (Game(..), Move(..), PlayerState(..), FinishedGame, Turn, play, updateGame) where
 
 import Data.List
 

@@ -22,3 +22,12 @@ executables:
     main:             Main.hs
     dependencies:
       - aiplay-referee-tron
+
+tests:
+  spec:
+    source-dirs: test
+    main: Spec.hs
+    dependencies:
+      - hspec
+      - QuickCheck
+      - aiplay-referee-tron
