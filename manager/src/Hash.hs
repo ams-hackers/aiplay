@@ -1,11 +1,20 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module Hash (Hash, shaFile) where
+module Hash
+  ( Hash
+  , shaFile
+  ) where
 
 import Data.ByteArray (convert)
-import Database.PostgreSQL.Simple.Types (Binary(..))
+import Database.PostgreSQL.Simple.FromField
+  ( FieldParser
+  , FromField
+  , ResultError(..)
+  , fromField
+  , returnError
+  )
 import Database.PostgreSQL.Simple.ToField (ToField, toField)
-import Database.PostgreSQL.Simple.FromField (FromField, fromField, returnError, ResultError(..), FieldParser)
+import Database.PostgreSQL.Simple.Types (Binary(..))
 
 import qualified Crypto.Hash as Hash
 import qualified Data.ByteString as BS
@@ -15,7 +24,8 @@ import qualified Data.ByteString.Lazy as LBS
 --
 -- Represents the hash of a migration.
 --
-newtype Hash = Hash (Hash.Digest Hash.SHA1)
+newtype Hash =
+  Hash (Hash.Digest Hash.SHA1)
   deriving (Eq)
 
 -- | Compute the hash of a file lazily

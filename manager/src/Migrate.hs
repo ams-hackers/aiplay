@@ -16,8 +16,8 @@ import Hash
 availableMigrations :: IO [FilePath]
 availableMigrations =
   filter migrationFile <$> getDirectoryContents "manager/Migrations"
-  where migrationFile = (".sql" `isExtensionOf`)
-
+  where
+    migrationFile = (".sql" `isExtensionOf`)
 
 connection :: IO PG.Connection
 connection = PG.connectPostgreSQL "postgres://aiplay:aiplay@localhost/aiplay"
@@ -31,7 +31,10 @@ appliedMigrations = do
 initializeDatabase :: IO ()
 initializeDatabase = do
   conn <- connection
-  void $ PG.execute_ conn " \
+  void $
+    PG.execute_
+      conn
+      " \
 \ DROP TABLE IF EXISTS migrations;                      \
 \ CREATE TABLE IF NOT EXISTS migrations (               \
 \   id serial PRIMARY KEY,                              \
@@ -43,18 +46,25 @@ initializeDatabase = do
 insertMigrationIntoTable :: String -> Hash -> IO ()
 insertMigrationIntoTable name sha1sum = do
   conn <- connection
-  void $ PG.execute conn "INSERT INTO migrations (filename, sha1sum) VALUES (?, ?)" (name, sha1sum)
+  void $
+    PG.execute
+      conn
+      "INSERT INTO migrations (filename, sha1sum) VALUES (?, ?)"
+      (name, sha1sum)
 
 test2 :: IO ()
 test2 = do
   conn <- connection
-  void $ PG.execute conn "INSERT INTO migrations (filename, sha1sum) VALUES (?, ?)" ("foobar.txt" :: String, "1234" :: String)
+  void $
+    PG.execute
+      conn
+      "INSERT INTO migrations (filename, sha1sum) VALUES (?, ?)"
+      ("foobar.txt" :: String, "1234" :: String)
 
 test :: IO ()
 test = do
   hash <- shaFile "manager/Migrations/20180810T154310-initial-schema.sql"
   insertMigrationIntoTable "filename1.txt" hash
-
 
 -- | Run migrations against the database to ensure it is up-to-date
 migrate :: IO ()
