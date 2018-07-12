@@ -12,5 +12,4 @@ module Main where
 --   return i
 
 main :: IO ()
-main = do
-  putStrLn "hello world"
+main = putStrLn "hello world"

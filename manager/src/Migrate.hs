@@ -61,5 +61,4 @@ test = do
 
 -- | Run migrations against the database to ensure it is up-to-date
 migrate :: IO ()
-migrate = do
-  initializeDatabase
+migrate = initializeDatabase

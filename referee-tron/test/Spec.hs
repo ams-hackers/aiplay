@@ -1,3 +1,5 @@
+{-# ANN module "HLint: ignore Redundant do" #-}
+
 import Test.Hspec
 import Test.QuickCheck
 import Control.Exception (evaluate)
@@ -24,7 +26,7 @@ instance Arbitrary Game where
   arbitrary = Game <$> arbitrary <*> arbitrary
 
 monotoneTaken :: Game -> Turn -> Bool
-monotoneTaken game turn = (countTaken game) <= (countTaken game')
+monotoneTaken game turn = countTaken game <= countTaken game'
   where game' = updateGame game turn
         countTaken = Set.size . gameTaken
 
