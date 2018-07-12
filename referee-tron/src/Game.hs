@@ -1,6 +1,4 @@
-module Game (Game(..), Move(..), PlayerState(..), FinishedGame, Turn, play, updateGame) where
-
-import Data.List
+module Game (Game(..), Move(..), PlayerState(..), FinishedGame, Turn, play, updateGame, emptyGame) where
 
 import qualified Data.Set as Set
 import Data.Set (Set)

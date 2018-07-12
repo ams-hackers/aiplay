@@ -3,14 +3,10 @@
 
 module Migrate where
 
-import Data.Maybe
 import Control.Monad
-import Control.Exception
 import System.Directory
 import System.FilePath.Posix (isExtensionOf)
 
-import qualified Data.ByteString as BS
-import qualified Data.ByteString.Lazy as LBS
 import qualified Database.PostgreSQL.Simple as PG
 
 import Hash
@@ -54,6 +50,7 @@ test2 = do
   conn <- connection
   void $ PG.execute conn "INSERT INTO migrations (filename, sha1sum) VALUES (?, ?)" ("foobar.txt" :: String, "1234" :: String)
 
+test :: IO ()
 test = do
   hash <- shaFile "manager/Migrations/20180810T154310-initial-schema.sql"
   insertMigrationIntoTable "filename1.txt" hash

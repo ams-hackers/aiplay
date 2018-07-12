@@ -15,20 +15,21 @@ import qualified Data.ByteString.Lazy as LBS
 --
 -- Represents the hash of a migration.
 --
-type Hash = Hash.Digest Hash.SHA1
+newtype Hash = Hash (Hash.Digest Hash.SHA1)
+  deriving (Eq)
 
 -- | Compute the hash of a file lazily
 shaFile :: FilePath -> IO Hash
-shaFile file = Hash.hashlazy <$> LBS.readFile file
+shaFile file = Hash <$> Hash.hashlazy <$> LBS.readFile file
 
 -- A Hash is serialized as a bytea when it is about to be written to
 -- the database.
 instance ToField Hash where
-  toField hash = toField $ Binary (convert hash :: BS.ByteString)
+  toField (Hash hash) = toField $ Binary (convert hash :: BS.ByteString)
 
 instance FromField Hash where
   fromField f mdata = do
     bs <- (fromField :: FieldParser BS.ByteString) f mdata
     case Hash.digestFromByteString bs of
-      Just hash -> return hash
+      Just hash -> return $ Hash hash
       Nothing -> returnError ConversionFailed f "Field doesn't contain a SHA1"
