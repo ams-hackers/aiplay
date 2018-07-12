@@ -12,17 +12,17 @@ services:
   manager:
     build:
       context: .
-      dockerfile: Dockerfile.hs
+      dockerfile: Dockerfile-hs
     command: [aiplay-manager]
 
   referee-tron:
     build:
       context: .
-      dockerfile: Dockerfile.hs
+      dockerfile: Dockerfile-hs
     command: [aiplay-referee-tron]
 
   dummy-player:
     build:
       context: .
-      dockerfile: Dockerfile.hs
+      dockerfile: Dockerfile-hs
     command: [aiplay-dummy-player]
