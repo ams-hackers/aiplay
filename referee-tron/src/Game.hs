@@ -1,23 +1,20 @@
 module Game
-  ( Game(..)
-  , Move(..)
-  , PlayerState(..)
-  , FinishedGame
-  , Turn
-  , play
-  , updateGame
-  , emptyGame
+  ( module Game
   ) where
 
-import qualified Data.Set as Set
 import Data.Set (Set)
+import qualified Data.Set as Set
 
-import qualified Data.Map.Lazy as Map
 import Data.Map.Lazy (Map, (!?))
+import qualified Data.Map.Lazy as Map
 
-type Coord = (Int, Int)
+newtype Coord =
+  Coord (Int, Int)
+  deriving (Show, Eq, Ord)
 
-type Player = Int
+newtype Player =
+  Player Int
+  deriving (Show, Eq, Ord)
 
 data PlayerState
   = Alive Coord
@@ -50,7 +47,11 @@ emptyGame =
   Game
   { gameTaken = Set.empty
   , gamePlayers =
-      Map.fromList [(1, Alive (10, 10)), (2, Alive (5, 5)), (3, Dead)]
+      Map.fromList
+        [ (Player 1, Alive $ Coord (10, 10))
+        , (Player 2, Alive $ Coord (5, 5))
+        , (Player 3, Dead)
+        ]
   }
 
 data Move
@@ -63,10 +64,10 @@ data Move
 type Turn = Map Player Move
 
 movePlayer :: PlayerState -> Move -> Maybe Coord
-movePlayer (Alive (x, y)) MoveUp = Just (x, y - 1)
-movePlayer (Alive (x, y)) MoveDown = Just (x, y + 1)
-movePlayer (Alive (x, y)) MoveLeft = Just (x - 1, y)
-movePlayer (Alive (x, y)) MoveRight = Just (x + 1, y)
+movePlayer (Alive (Coord (x, y))) MoveUp = Just $ Coord (x, y - 1)
+movePlayer (Alive (Coord (x, y))) MoveDown = Just $ Coord (x, y + 1)
+movePlayer (Alive (Coord (x, y))) MoveLeft = Just $ Coord (x - 1, y)
+movePlayer (Alive (Coord (x, y))) MoveRight = Just $ Coord (x + 1, y)
 movePlayer Dead _ = Nothing
 
 -- Return a map of where each player would like to move in this turn
