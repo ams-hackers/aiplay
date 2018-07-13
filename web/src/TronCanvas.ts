@@ -1,12 +1,10 @@
-const WIDTH = 100;
-const HEIGHT = 100;
+import { Game } from "./Model";
 
 const SCALE = 8;
 
 const GRID_SIZE = 1;
 
 interface StyleOptions {
-  strokeStyle: string;
   fillStyle: string;
 }
 
@@ -19,47 +17,54 @@ function cell(
   if (options.fillStyle) {
     ctx.fillStyle = options.fillStyle;
   }
-  if (options.strokeStyle) {
-    ctx.strokeStyle = options.strokeStyle;
-  }
-  ctx.fillRect(x, y, 1, 1);
-  ctx.strokeRect(x, y, 1, 1);
+  ctx.beginPath();
+  ctx.rect(x, y, 1, 1);
+  ctx.fill();
+  ctx.stroke();
 }
 
-export default function createTron(ctx: CanvasRenderingContext2D) {
+function grid(ctx: CanvasRenderingContext2D, game: Game) {
+  const { width, height } = game;
+  // Grid
+  ctx.beginPath();
+  for (let x = 0; x < width; x += GRID_SIZE) {
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+    ctx.lineWidth = 0.1;
+  }
+  for (let y = 0; y < height; y += GRID_SIZE) {
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
+    ctx.lineWidth = 0.1;
+  }
+  ctx.stroke();
+}
+
+export function drawTron(ctx: CanvasRenderingContext2D, game: Game) {
+  const { width, height } = game;
   const canvas = ctx.canvas;
-  canvas.width = WIDTH * SCALE;
-  canvas.height = HEIGHT * SCALE;
+
+  canvas.width = width * SCALE;
+  canvas.height = height * SCALE;
 
   ctx.scale(SCALE, SCALE);
 
+  const styles = ["blue", "green", "purple", "yellow"];
+
   // Background
-  ctx.fillRect(0, 0, WIDTH, HEIGHT);
+  ctx.fillRect(0, 0, width, height);
+  ctx.strokeStyle = "#333";
 
-  // Grid
-  for (let x = 0; x < WIDTH; x += GRID_SIZE) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, HEIGHT);
-    ctx.lineWidth = 0.1;
-    ctx.strokeStyle = "#333";
-    ctx.stroke();
-  }
-  for (let y = 0; y < HEIGHT; y += GRID_SIZE) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(WIDTH, y);
-    ctx.lineWidth = 0.1;
-    ctx.strokeStyle = "#333";
-    ctx.stroke();
-  }
+  grid(ctx, game);
 
-  cell(ctx, 10, 10, { strokeStyle: "darkYellow", fillStyle: "yellow" });
+  game.walls.forEach(wall => {
+    cell(ctx, wall.x, wall.y, { fillStyle: "gray" });
+  });
 
-  // Walls
-  for (let i = 0; i < Math.sqrt(WIDTH * HEIGHT); i++) {
-    const x = Math.round(WIDTH * Math.random());
-    const y = Math.round(HEIGHT * Math.random());
-    cell(ctx, x, y, { strokeStyle: "darkGray", fillStyle: "gray" });
+  for (let player = 0; player < game.players; player++) {
+    game.turns.forEach(turn => {
+      const { x, y } = turn[player];
+      cell(ctx, x, y, { fillStyle: styles[player] });
+    });
   }
 }
