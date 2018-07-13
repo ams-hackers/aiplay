@@ -20,17 +20,6 @@ class Tron extends Component<Props, State> {
     error: false
   };
 
-  registerCanvas = (element: HTMLCanvasElement) => {
-    this.canvas = element;
-  };
-
-  step = (step: number) => {
-    const { game } = this.props;
-    this.setState(state => ({
-      turn: Math.min(Math.max(1, state.turn + step), game.turns.length)
-    }));
-  };
-
   componentDidMount() {
     if (!this.canvas) return;
     this.ctx = this.canvas.getContext("2d");
@@ -45,13 +34,40 @@ class Tron extends Component<Props, State> {
     this.draw();
   }
 
-  draw() {
+  registerCanvas = (element: HTMLCanvasElement) => {
+    this.canvas = element;
+  };
+
+  step = (step: number, callback?: () => void) => {
+    const { game } = this.props;
+    this.setState(
+      state => ({
+        turn: Math.min(Math.max(1, state.turn + step), game.turns.length)
+      }),
+      callback
+    );
+  };
+
+  draw = () => {
     const { game } = this.props;
     const { turn } = this.state;
     if (this.ctx) {
       drawTron(this.ctx, game, { turn });
     }
-  }
+  };
+
+  play = () => {
+    this.draw();
+    this.step(1, () => {
+      const { turn } = this.state;
+      const { game } = this.props;
+      if (turn < game.turns.length) {
+        requestAnimationFrame(this.play);
+      } else {
+        this.draw();
+      }
+    });
+  };
 
   render() {
     if (this.state.error) {
@@ -62,6 +78,7 @@ class Tron extends Component<Props, State> {
           <canvas ref={this.registerCanvas} />
           <button onClick={() => this.step(1)}>+</button>
           <button onClick={() => this.step(-1)}>-</button>
+          <button onClick={this.play}>Play</button>
         </div>
       );
     }
