@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { drawTron } from "./TronCanvas";
 import { Game } from "./Model";
+import styles from "./styles.css";
 
 interface Props {
   game: Game;
@@ -73,9 +74,10 @@ class Tron extends Component<Props, State> {
     if (this.state.error) {
       return <p>Could not render canvas.</p>;
     } else {
+      console.log({ styles });
       return (
         <div>
-          <canvas ref={this.registerCanvas} />
+          <canvas className={styles.canvas} ref={this.registerCanvas} />
           <button onClick={() => this.step(1)}>+</button>
           <button onClick={() => this.step(-1)}>-</button>
           <button onClick={this.play}>Play</button>

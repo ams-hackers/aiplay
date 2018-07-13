@@ -14,8 +14,10 @@
   },
   "devDependencies": {
     "@types/react": "^16.4.6",
+    "autoprefixer": "^8.6.5",
     "parcel-bundler": "^1.9.4",
     "parcel-plugin-typescript": "^1.0.0",
+    "postcss-modules": "^1.1.0",
     "prettier": "^1.13.7",
     "tslint": "^5.10.0",
     "tslint-config-prettier": "^1.13.0",

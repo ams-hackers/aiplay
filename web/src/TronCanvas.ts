@@ -1,6 +1,6 @@
 import { Game } from "./Model";
 
-const SCALE = 8;
+const SCALE = 5;
 
 const GRID_SIZE = 1;
 
