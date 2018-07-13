@@ -40,7 +40,15 @@ function grid(ctx: CanvasRenderingContext2D, game: Game) {
   ctx.stroke();
 }
 
-export function drawTron(ctx: CanvasRenderingContext2D, game: Game) {
+interface Options {
+  turn: number;
+}
+
+export function drawTron(
+  ctx: CanvasRenderingContext2D,
+  game: Game,
+  options: Options
+) {
   const { width, height } = game;
   const canvas = ctx.canvas;
 
@@ -62,7 +70,7 @@ export function drawTron(ctx: CanvasRenderingContext2D, game: Game) {
   });
 
   for (let player = 0; player < game.players; player++) {
-    game.turns.forEach(turn => {
+    game.turns.slice(0, options.turn).forEach(turn => {
       const { x, y } = turn[player];
       cell(ctx, x, y, { fillStyle: styles[player] });
     });
