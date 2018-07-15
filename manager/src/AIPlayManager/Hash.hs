@@ -30,7 +30,7 @@ newtype Hash =
 
 -- | Compute the hash of a file lazily
 shaFile :: FilePath -> IO Hash
-shaFile file = Hash <$> Hash.hashlazy <$> LBS.readFile file
+shaFile file = Hash . Hash.hashlazy <$> LBS.readFile file
 
 -- A Hash is serialized as a bytea when it is about to be written to
 -- the database.

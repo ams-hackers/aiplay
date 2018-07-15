@@ -1,9 +1,12 @@
+{-# ANN module "HLint: ignore Redundant do" #-}
+{-# ANN module "HLint: ignore Redundant $" #-}
+
 import Test.Hspec
 import Test.QuickCheck
 
 import qualified Data.Set as Set
 
-import Game
+import AIPlayTron.Game
 
 instance Arbitrary Coord where
   arbitrary = do
