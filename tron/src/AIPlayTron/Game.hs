@@ -1,3 +1,7 @@
+{-# OPTIONS_HADDOCK prune #-}
+
+{-| Model the rules of the game Tron.
+-}
 module AIPlayTron.Game where
 
 import Data.Set (Set)
@@ -6,6 +10,7 @@ import qualified Data.Set as Set
 import Data.Map.Lazy (Map, (!?))
 import qualified Data.Map.Lazy as Map
 
+-- A position in the board
 newtype Coord =
   Coord (Int, Int)
   deriving (Show, Eq, Ord)
@@ -19,27 +24,14 @@ data PlayerState
   | Dead
   deriving (Show, Eq)
 
-alivePlayerState :: PlayerState -> Bool
-alivePlayerState (Alive _) = True
-alivePlayerState Dead = False
-
+-- | A Tron game. It captures the state of the game in a given turn.
 data Game = Game
   { gameTaken :: Set Coord
   , gamePlayers :: Map Player PlayerState
   } deriving (Show)
 
-listPlayers :: Game -> [Player]
-listPlayers game = Map.keys $ gamePlayers game
-
-listAlivePlayers :: Game -> [Player]
-listAlivePlayers game =
-  Map.keys $ Map.filter alivePlayerState $ gamePlayers game
-
-data FinishedGame = FinishedGame
-  { finishedGame :: Game
-  , finishedGameWinners :: [Player]
-  }
-
+-- * Construction
+-- | Return an empty game
 emptyGame :: Game
 emptyGame =
   Game
@@ -52,6 +44,31 @@ emptyGame =
         ]
   }
 
+-- * Basic operations
+alivePlayerState :: PlayerState -> Bool
+alivePlayerState (Alive _) = True
+alivePlayerState Dead = False
+
+-- | The players participating in this game.
+listPlayers :: Game -> [Player]
+listPlayers game = Map.keys $ gamePlayers game
+
+-- | The players that are alive.
+listAlivePlayers :: Game -> [Player]
+listAlivePlayers game =
+  Map.keys $ Map.filter alivePlayerState $ gamePlayers game
+
+-- * Playing
+-- This is some tests for this section.
+--
+-- | A finished game represents the result of a game. Note that you
+-- cannot 'play' more turns on a finished game.
+data FinishedGame = FinishedGame
+  { finishedGame :: Game
+  , finishedGameWinners :: [Player]
+  }
+
+-- | A move is a possible action that a player can take
 data Move
   = MoveUp
   | MoveDown
@@ -59,6 +76,8 @@ data Move
   | MoveRight
   deriving (Show, Eq)
 
+-- | A turn in the game. All user moves are to be considered
+-- simultaneously.
 type Turn = Map Player Move
 
 movePlayer :: PlayerState -> Move -> Maybe Coord
@@ -91,6 +110,7 @@ getNewPlayerState player taken requestedCoords =
     invalidCoords = taken `Set.union` otherPlayersCoords
     isColliding coords = coords `Set.member` invalidCoords
 
+-- Get the resulting game after playing a turn.
 updateGame :: Game -> Turn -> Game
 updateGame game turn =
   Game
@@ -104,6 +124,10 @@ updateGame game turn =
     requestedCoords = turnRequestedCoords game turn
     newPlayerState player = getNewPlayerState player taken requestedCoords
 
+{- foo -}
+-- Return an array of winners. There could be multiple winners if
+-- there is a tie. It will return Nothing if the game is not finished
+-- yet.
 winners :: Game -> Game -> Maybe [Player]
 winners beforeGame afterGame =
   case aliveAfter of
@@ -114,6 +138,8 @@ winners beforeGame afterGame =
     aliveBefore = listAlivePlayers beforeGame
     aliveAfter = listAlivePlayers afterGame
 
+-- | Play a turn on a given game, returning either a Game or a
+-- FinishedGame.
 play :: Game -> Turn -> Either FinishedGame Game
 play beforeGame turn =
   case winners beforeGame afterGame of
