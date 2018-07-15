@@ -21,7 +21,7 @@ import qualified Data.ByteString as BS
 import qualified Database.PostgreSQL.Simple as PG
 import qualified Database.PostgreSQL.Simple.FromRow as FromRow
 
-data Recorded
+data Record
 
 data File
 
@@ -92,7 +92,7 @@ initializeDatabase = do
 \ )"
 
 -- | Return migrations that have been applied to the current database.
-appliedMigrations :: IO [Migration Recorded]
+appliedMigrations :: IO [Migration Record]
 appliedMigrations = do
   conn <- connection
   PG.queryWith_
@@ -122,22 +122,22 @@ insertMigrationIntoTable Migration {filename, sha1sum} = do
 data MigrationStatus = MigrationStatus
   { migrationStatusPending :: [Migration File]
   , migrationStatusApplied :: [Migration File]
-  , migrationStatusChanged :: [(Migration File, Migration Recorded)]
-  , migrationStatusMissing :: [Migration Recorded]
+  , migrationStatusChanged :: [(Migration File, Migration Record)]
+  , migrationStatusMissing :: [Migration Record]
   } deriving (Show)
 
 -- Pair up avaiable and applied migrations as a preparation for a
 -- consistency check.
 matchingMigrations ::
      [Migration File]
-  -> [Migration Recorded]
-  -> [(Migration File, Migration Recorded)]
+  -> [Migration Record]
+  -> [(Migration File, Migration Record)]
 matchingMigrations available applied =
   zip
     (sort $ available `intersect` castAll applied)
     (sort $ applied `intersect` castAll applied)
 
-compareMigrations :: [Migration File] -> [Migration Recorded] -> MigrationStatus
+compareMigrations :: [Migration File] -> [Migration Record] -> MigrationStatus
 compareMigrations available applied =
   MigrationStatus
   { migrationStatusPending = available \\ castAll applied
