@@ -1,8 +1,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module AIPlayManager.Hash
-  ( Hash
-  , shaFile
+module AIPlayManager.SHA1
+  ( SHA1
+  , sha1File
   ) where
 
 import Data.ByteArray (convert)
@@ -20,26 +20,23 @@ import qualified Crypto.Hash as Hash
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as LBS
 
--- Hash type
---
--- Represents the hash of a migration.
---
-newtype Hash =
-  Hash (Hash.Digest Hash.SHA1)
-  deriving (Eq)
+-- | SHA1 Digest.
+newtype SHA1 =
+  SHA1 (Hash.Digest Hash.SHA1)
+  deriving (Eq, Show)
 
--- | Compute the hash of a file lazily
-shaFile :: FilePath -> IO Hash
-shaFile file = Hash . Hash.hashlazy <$> LBS.readFile file
+-- | Compute the hash of a file lazily.
+sha1File :: FilePath -> IO SHA1
+sha1File file = SHA1 . Hash.hashlazy <$> LBS.readFile file
 
 -- A Hash is serialized as a bytea when it is about to be written to
 -- the database.
-instance ToField Hash where
-  toField (Hash hash) = toField $ Binary (convert hash :: BS.ByteString)
+instance ToField SHA1 where
+  toField (SHA1 hash) = toField $ Binary (convert hash :: BS.ByteString)
 
-instance FromField Hash where
+instance FromField SHA1 where
   fromField f mdata = do
     bs <- (fromField :: FieldParser BS.ByteString) f mdata
     case Hash.digestFromByteString bs of
-      Just hash -> return $ Hash hash
+      Just hash -> return $ SHA1 hash
       Nothing -> returnError ConversionFailed f "Field doesn't contain a SHA1"
