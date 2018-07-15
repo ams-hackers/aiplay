@@ -1,4 +1,4 @@
-name:                aiplay-referee-tron
+name:                aiplay-tron
 version:             0.1.0.0
 #synopsis:
 #description:
@@ -18,10 +18,10 @@ library:
   source-dirs: src/
   
 executables:
-  aiplay-referee-tron:
+  aiplay-tron:
     main:             Main.hs
     dependencies:
-      - aiplay-referee-tron
+      - aiplay-tron
 
 tests:
   spec:
@@ -30,4 +30,4 @@ tests:
     dependencies:
       - hspec
       - QuickCheck
-      - aiplay-referee-tron
+      - aiplay-tron

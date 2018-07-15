@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Migrate where
+module AIPlayManager.Migrate where
 
 import Control.Monad
 import System.Directory
@@ -9,7 +9,7 @@ import System.FilePath.Posix (isExtensionOf)
 
 import qualified Database.PostgreSQL.Simple as PG
 
-import Hash
+import AIPlayManager.Hash
 
 -- | Return the list of available migration SQL files on the
 -- migrations directory.

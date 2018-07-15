@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module Hash
+module AIPlayManager.Hash
   ( Hash
   , shaFile
   ) where

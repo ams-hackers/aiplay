@@ -1,6 +1,4 @@
-module Game
-  ( module Game
-  ) where
+module AIPlayTron.Game where
 
 import Data.Set (Set)
 import qualified Data.Set as Set
