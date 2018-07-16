@@ -16,6 +16,8 @@ dependencies:
 
 library:
   source-dirs: src/
+  dependencies:
+    - network
   
 executables:
   aiplay-tron:
