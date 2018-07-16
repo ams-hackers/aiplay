@@ -13,6 +13,7 @@ dependencies:
   - text
   - bytestring
   - containers
+  - text
 
 library:
   source-dirs: src/

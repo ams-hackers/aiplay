@@ -2,15 +2,14 @@
 
 module AIPlayTron.GameMaster where
 
-import Control.Exception (finally)
-import Control.Monad
-import Data.Char (isSpace)
-import Data.List
-import Network.Socket
-import System.IO
-
 import AIPlayTron.Protocol
 import AIPlayTron.Socket
+import Control.Exception (finally)
+import Data.Char (isSpace)
+import qualified Data.Text as T
+import qualified Data.Text.IO as IO
+import Network.Socket
+import System.IO
 
 port :: PortNumber
 port = 4242
@@ -29,14 +28,14 @@ mainLoop sock = do
   conns <- acceptPlayers sock numberOfPlayers
   runGame conns
 
-readLine :: Handle -> IO String
-readLine handle = dropWhileEnd isSpace <$> hGetLine handle
+readLine :: Handle -> IO T.Text
+readLine handle = T.dropWhileEnd isSpace <$> IO.hGetLine handle
 
 readCommand :: Handle -> IO (Maybe Command)
 readCommand handle = parseCommand <$> readLine handle
 
 reply :: Response -> Handle -> IO ()
-reply response handle = hPutStrLn handle $ formatResponse response
+reply response handle = IO.hPutStrLn handle $ formatResponse response
 
 replyAll :: Response -> [Handle] -> IO ()
 replyAll response = mapM_ (reply response)

@@ -1,7 +1,9 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module AIPlayTron.Protocol where
 
-import Data.Char (toUpper)
-import Text.Read
+import qualified Data.Text as T
+import qualified Data.Text.Read as Read
 
 data Command =
   Move Int
@@ -20,17 +22,27 @@ data Response
   | Wall Coord
   | You Coord
 
-parseCommand :: String -> Maybe Command
-parseCommand = mkCommand . map (map toUpper) . words
-  where
-    mkCommand ["MOVE", x, y] = Move <$> readMaybe x <*> readMaybe y
-    mkCommand _ = Nothing
+numArg :: T.Text -> Maybe Int
+numArg x =
+  case Read.decimal x of
+    Left _ -> Nothing
+    Right (value, _) -> Just value
 
-formatResponse :: Response -> String
-formatResponse (Welcome version) = unwords ["TRON", show version]
+wordsToCommand :: [T.Text] -> Maybe Command
+wordsToCommand ["MOVE", x, y] = Move <$> numArg x <*> numArg y
+wordsToCommand _ = Nothing
+
+parseCommand :: T.Text -> Maybe Command
+parseCommand = wordsToCommand . map T.toUpper . T.words
+
+str :: Show a => a -> T.Text
+str = T.pack . show
+
+formatResponse :: Response -> T.Text
+formatResponse (Welcome version) = T.unwords ["TRON", str version]
 formatResponse (Player playerId (x, y)) =
-  unwords ["PLAYER", show playerId, show x, show y]
-formatResponse (Wall (x, y)) = unwords ["WALL", show x, show y]
-formatResponse (You (x, y)) = unwords ["YOU", show x, show y]
-formatResponse (Size x y) = unwords ["SIZE", show x, show y]
+  T.unwords ["PLAYER", str playerId, str x, str y]
+formatResponse (Wall (x, y)) = T.unwords ["WALL", str x, str y]
+formatResponse (You (x, y)) = T.unwords ["YOU", str x, str y]
+formatResponse (Size x y) = T.unwords ["SIZE", str x, str y]
 formatResponse Turn = "TURN"
