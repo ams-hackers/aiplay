@@ -35,14 +35,17 @@ readLine handle = dropWhileEnd isSpace <$> hGetLine handle
 readCommand :: Handle -> IO (Maybe Command)
 readCommand handle = parseCommand <$> readLine handle
 
+reply :: Result -> Handle -> IO ()
+reply result handle = hPutStrLn handle $ formatResult result
+
 sendHello :: Handle -> IO ()
 sendHello handle = do
-  hPutStrLn handle "TRON 1"
-  hPutStrLn handle "SIZE 100 100"
-  hPutStrLn handle "WALL 1 1"
-  hPutStrLn handle "WALL 2 3"
-  hPutStrLn handle "PLAYER 10 10"
-  hPutStrLn handle "YOU 1 2"
+  reply (Welcome 1) handle
+  reply (Size 100 100) handle
+  reply (Wall (1, 1)) handle
+  reply (Wall (2, 3)) handle
+  reply (Player 1 (10, 10)) handle
+  reply (You (1, 2)) handle
 
 handleTurns :: [Handle] -> IO ()
 handleTurns handles = do
