@@ -38,6 +38,9 @@ readCommand handle = parseCommand <$> readLine handle
 reply :: Result -> Handle -> IO ()
 reply result handle = hPutStrLn handle $ formatResult result
 
+replyAll :: Result -> [Handle] -> IO ()
+replyAll result = mapM_ (reply result)
+
 sendHello :: Handle -> IO ()
 sendHello handle = do
   reply (Welcome 1) handle
@@ -49,14 +52,14 @@ sendHello handle = do
 
 handleTurns :: [Handle] -> IO ()
 handleTurns handles = do
-  broadcast "TURN" handles
-  responses <-
+  replyAll Turn handles
+  _responses <-
     mapM
       (\handle -> do
          line <- readLine handle
          return (handle, line))
       handles
-  mapM_ (\(handle, line) -> broadcast line (delete handle handles)) responses
+  return ()
 
 runGame :: [(Socket, SockAddr)] -> IO ()
 runGame conns = do

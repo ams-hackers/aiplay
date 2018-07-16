@@ -13,6 +13,7 @@ type Coord = (Int, Int)
 
 data Result
   = Welcome Int
+  | Turn
   | Size Int
          Int
   | Player Int
@@ -33,3 +34,4 @@ formatResult (Player playerId (x, y)) =
 formatResult (Wall (x, y)) = unwords ["WALL", show x, show y]
 formatResult (You (x, y)) = unwords ["YOU", show x, show y]
 formatResult (Size x y) = unwords ["SIZE", show x, show y]
+formatResult Turn = "TURN"

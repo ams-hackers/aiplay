@@ -23,6 +23,3 @@ getConnectionHandle (sock, _) = do
   handle <- socketToHandle sock ReadWriteMode
   hSetBuffering handle NoBuffering
   return handle
-
-broadcast :: String -> [Handle] -> IO ()
-broadcast msg = mapM_ (\h -> hPutStrLn h msg)
