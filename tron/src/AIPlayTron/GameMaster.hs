@@ -6,11 +6,11 @@ import Control.Exception (finally)
 import Control.Monad
 import Data.Char (isSpace)
 import Data.List
-
 import Network.Socket
-
---import Network.Socket.ByteString
 import System.IO
+
+import AIPlayTron.Protocol
+import AIPlayTron.Socket
 
 port :: PortNumber
 port = 4242
@@ -20,15 +20,9 @@ numberOfPlayers = 2
 
 main :: IO ()
 main = do
-  sock <- socket AF_INET Stream 0
-  setSocketOption sock ReuseAddr 1
-  bind sock (SockAddrInet port iNADDR_ANY)
-  listen sock numberOfPlayers -- set a max of 2 queued connections
+  sock <- listenPlayers numberOfPlayers port
   putStrLn $ "Listening on " ++ show port
   finally (mainLoop sock) (close sock)
-
-acceptPlayers :: Socket -> Int -> IO [(Socket, SockAddr)]
-acceptPlayers sock n = replicateM n (accept sock)
 
 mainLoop :: Socket -> IO ()
 mainLoop sock = do
@@ -38,6 +32,9 @@ mainLoop sock = do
 readLine :: Handle -> IO String
 readLine handle = dropWhileEnd isSpace <$> hGetLine handle
 
+readCommand :: Handle -> IO (Maybe Command)
+readCommand handle = parseCommand <$> readLine handle
+
 sendHello :: Handle -> IO ()
 sendHello handle = do
   hPutStrLn handle "TRON 1"
@@ -46,9 +43,6 @@ sendHello handle = do
   hPutStrLn handle "WALL 2 3"
   hPutStrLn handle "PLAYER 10 10"
   hPutStrLn handle "YOU 1 2"
-
-broadcast :: String -> [Handle] -> IO ()
-broadcast msg = mapM_ (\h -> hPutStrLn h msg)
 
 handleTurns :: [Handle] -> IO ()
 handleTurns handles = do
@@ -60,12 +54,6 @@ handleTurns handles = do
          return (handle, line))
       handles
   mapM_ (\(handle, line) -> broadcast line (delete handle handles)) responses
-
-getConnectionHandle :: (Socket, SockAddr) -> IO Handle
-getConnectionHandle (sock, _) = do
-  handle <- socketToHandle sock ReadWriteMode
-  hSetBuffering handle NoBuffering
-  return handle
 
 runGame :: [(Socket, SockAddr)] -> IO ()
 runGame conns = do
