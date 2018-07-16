@@ -35,11 +35,11 @@ readLine handle = dropWhileEnd isSpace <$> hGetLine handle
 readCommand :: Handle -> IO (Maybe Command)
 readCommand handle = parseCommand <$> readLine handle
 
-reply :: Result -> Handle -> IO ()
-reply result handle = hPutStrLn handle $ formatResult result
+reply :: Response -> Handle -> IO ()
+reply response handle = hPutStrLn handle $ formatResponse response
 
-replyAll :: Result -> [Handle] -> IO ()
-replyAll result = mapM_ (reply result)
+replyAll :: Response -> [Handle] -> IO ()
+replyAll response = mapM_ (reply response)
 
 sendHello :: Handle -> IO ()
 sendHello handle = do

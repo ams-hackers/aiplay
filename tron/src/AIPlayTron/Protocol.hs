@@ -1,7 +1,6 @@
 module AIPlayTron.Protocol where
 
 import Data.Char (toUpper)
-import Data.List
 import Text.Read
 
 data Command =
@@ -11,7 +10,7 @@ data Command =
 
 type Coord = (Int, Int)
 
-data Result
+data Response
   = Welcome Int
   | Turn
   | Size Int
@@ -27,11 +26,11 @@ parseCommand = mkCommand . map (map toUpper) . words
     mkCommand ["MOVE", x, y] = Move <$> readMaybe x <*> readMaybe y
     mkCommand _ = Nothing
 
-formatResult :: Result -> String
-formatResult (Welcome version) = unwords ["TRON", show version]
-formatResult (Player playerId (x, y)) =
+formatResponse :: Response -> String
+formatResponse (Welcome version) = unwords ["TRON", show version]
+formatResponse (Player playerId (x, y)) =
   unwords ["PLAYER", show playerId, show x, show y]
-formatResult (Wall (x, y)) = unwords ["WALL", show x, show y]
-formatResult (You (x, y)) = unwords ["YOU", show x, show y]
-formatResult (Size x y) = unwords ["SIZE", show x, show y]
-formatResult Turn = "TURN"
+formatResponse (Wall (x, y)) = unwords ["WALL", show x, show y]
+formatResponse (You (x, y)) = unwords ["YOU", show x, show y]
+formatResponse (Size x y) = unwords ["SIZE", show x, show y]
+formatResponse Turn = "TURN"
