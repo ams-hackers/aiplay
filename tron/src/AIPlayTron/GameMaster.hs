@@ -21,12 +21,10 @@ main :: IO ()
 main = do
   sock <- listenPlayers numberOfPlayers port
   putStrLn $ "Listening on " ++ show port
-  finally (mainLoop sock) (close sock)
-
-mainLoop :: Socket -> IO ()
-mainLoop sock = do
-  conns <- acceptPlayers sock numberOfPlayers
-  runGame conns
+  finally
+    (do conns <- acceptPlayers sock numberOfPlayers
+        runGame conns)
+    (close sock)
 
 readLine :: Handle -> IO T.Text
 readLine handle = T.dropWhileEnd isSpace <$> IO.hGetLine handle
@@ -42,12 +40,14 @@ replyAll response = mapM_ (reply response)
 
 sendHello :: Handle -> IO ()
 sendHello handle = do
-  reply (Welcome 1) handle
-  reply (Size 100 100) handle
-  reply (Wall (1, 1)) handle
-  reply (Wall (2, 3)) handle
-  reply (Player 1 (10, 10)) handle
-  reply (You (1, 2)) handle
+  msg $ Welcome 1
+  msg $ Size 100 100
+  msg $ Wall (1, 1)
+  msg $ Wall (2, 3)
+  msg $ Player 1 (10, 10)
+  msg $ You (1, 2)
+  where
+    msg = (`reply` handle)
 
 handleTurns :: [Handle] -> IO ()
 handleTurns handles = do
