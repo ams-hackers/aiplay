@@ -1,5 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+module Main where
+
 import Test.Hspec
 import Test.QuickCheck
 
@@ -8,31 +10,31 @@ import Data.ByteString.Lazy.Char8 (pack)
 import AIPlayManager.Migrate
 import AIPlayManager.SHA1
 
+{-# ANN module "HLint: ignore Redundant do" #-}
+
+{-# ANN module "HLint: ignore Redundant $" #-}
+
+{-# ANN module "HLint: ignore Reduce duplication" #-}
+
 fakeMigration :: String -> Migration a
 fakeMigration x = Migration {filename = x, sha1sum = sha1LBS $ pack x}
+
+migrations :: [Migration a]
+migrations =
+  [fakeMigration "1.sql", fakeMigration "2.sql", fakeMigration "3.sql"]
 
 main :: IO ()
 main =
   hspec $ do
     describe "Migrate" $ do
       it "should consider an empty database and project as up-top-date" $ do
-        let migrations = []
-            -- Define new variables for them so we don't constraint
-            -- the polymorphism type of migrations.
-            fileMigrations = migrations
-            recordedMigrations = migrations
-            status = compareMigrations fileMigrations recordedMigrations
+        let status = compareMigrations [] []
         migrationStatusPending status `shouldBe` []
         migrationStatusMissing status `shouldBe` []
         migrationStatusChanged status `shouldBe` []
         migrationStatusApplied status `shouldBe` migrations
       it "should not do anything if the database is up-to-date" $ do
-        let migrations =
-              [ fakeMigration "1.sql"
-              , fakeMigration "2.sql"
-              , fakeMigration "3.sql"
-              ]
-            fileMigrations = migrations
+        let fileMigrations = migrations
             recordedMigrations = migrations
             status = compareMigrations fileMigrations recordedMigrations
         migrationStatusPending status `shouldBe` []
@@ -40,12 +42,7 @@ main =
         migrationStatusChanged status `shouldBe` []
         migrationStatusApplied status `shouldBe` migrations
       it "should apply new migration scripts!" $ do
-        let migrations =
-              [ fakeMigration "1.sql"
-              , fakeMigration "2.sql"
-              , fakeMigration "3.sql"
-              ]
-            newMigration = fakeMigration "4.sql"
+        let newMigration = fakeMigration "4.sql"
             fileMigrations = newMigration : migrations
             recordedMigrations = migrations
             status = compareMigrations fileMigrations recordedMigrations

@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_HADDOCK prune #-}
+{-# ANN module "HLint: ignore Use null" #-}
 
 {-|
 This module implements simple database migrations by running all the
@@ -164,7 +165,7 @@ compareMigrations available applied =
 
 printFailedMigrations :: [Migration a] -> IO ()
 printFailedMigrations =
-  mapM_ (\migration -> do hPutStrLn stderr $ " - " ++ (filename migration))
+  mapM_ (\migration -> hPutStrLn stderr $ " - " ++ filename migration)
 
 -- | Run migrations against the database to ensure it is up-to-date.
 migrate :: IO ()
