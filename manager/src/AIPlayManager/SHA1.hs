@@ -2,6 +2,7 @@
 
 module AIPlayManager.SHA1
   ( SHA1
+  , sha1LBS
   , sha1File
   ) where
 
@@ -25,9 +26,13 @@ newtype SHA1 =
   SHA1 (Hash.Digest Hash.SHA1)
   deriving (Eq, Show)
 
+-- | Compute the hash of a lazy ByteString
+sha1LBS :: LBS.ByteString -> SHA1
+sha1LBS = SHA1 . Hash.hashlazy
+
 -- | Compute the hash of a file lazily.
 sha1File :: FilePath -> IO SHA1
-sha1File file = SHA1 . Hash.hashlazy <$> LBS.readFile file
+sha1File file = sha1LBS <$> LBS.readFile file
 
 -- A Hash is serialized as a bytea when it is about to be written to
 -- the database.
