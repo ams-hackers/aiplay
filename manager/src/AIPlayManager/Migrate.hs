@@ -126,7 +126,7 @@ data MigrationStatus = MigrationStatus
   , migrationStatusMissing :: [Migration Record]
   } deriving (Show)
 
--- Pair up avaiable and applied migrations as a preparation for a
+-- Pair up available and applied migrations as a preparation for a
 -- consistency check.
 matchingMigrations ::
      [Migration File]
