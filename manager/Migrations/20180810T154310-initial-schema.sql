@@ -2,6 +2,10 @@
 -- Initial database schema
 --
 
+drop table if exists players;
+drop table if exists games;
+drop table if exists game_players;
+
 create table players (
   id uuid primary key,
   display_name varchar(32) not null,

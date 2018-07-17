@@ -13,11 +13,15 @@ module AIPlayManager.Migrate where
 import Control.Monad
 import Data.Function
 import Data.List
+import Data.String
 import System.Directory
+import System.Exit
 import System.FilePath.Posix ((</>), isExtensionOf, takeFileName)
+import System.IO
 
 import AIPlayManager.SHA1
 import qualified Data.ByteString as BS
+import qualified Data.ByteString.Char8 as BS.Char8
 import qualified Database.PostgreSQL.Simple as PG
 import qualified Database.PostgreSQL.Simple.FromRow as FromRow
 
@@ -84,6 +88,7 @@ initializeDatabase = do
     PG.execute_
       conn
       " \
+\ SET client_min_messages TO WARNING;                   \
 \ CREATE TABLE IF NOT EXISTS migrations (               \
 \   id serial PRIMARY KEY,                              \
 \   sha1sum bytea NOT NULL UNIQUE,                      \
@@ -114,6 +119,14 @@ insertMigrationIntoTable Migration {filename, sha1sum} = do
       conn
       "INSERT INTO migrations (filename, sha1sum) VALUES (?, ?)"
       (filename, sha1sum)
+
+runMigration :: Migration File -> IO ()
+runMigration m = do
+  content <- readMigrationFile m
+  conn <- connection
+  PG.withTransaction conn $ do
+    void $ PG.execute_ conn $ fromString $ BS.Char8.unpack content
+    insertMigrationIntoTable m
 
 --
 -- Migration
@@ -149,6 +162,37 @@ compareMigrations available applied =
   where
     matching = matchingMigrations available applied
 
+printFailedMigrations :: [Migration a] -> IO ()
+printFailedMigrations =
+  mapM_ (\migration -> do hPutStrLn stderr $ " - " ++ (filename migration))
+
 -- | Run migrations against the database to ensure it is up-to-date.
 migrate :: IO ()
-migrate = initializeDatabase
+migrate = do
+  initializeDatabase
+  available <- availableMigrations
+  applied <- appliedMigrations
+  let status = compareMigrations available applied
+  case status of
+    _
+      | migrationStatusChanged status /= [] -> do
+        hPutStrLn
+          stderr
+          "ERROR: The following migrations files changed the directory:"
+        printFailedMigrations $ map fst $ migrationStatusChanged status
+        void exitFailure
+      | migrationStatusMissing status /= [] -> do
+        hPutStrLn
+          stderr
+          "ERROR: The following migrations were applied to the database but are missing from the directory:"
+        printFailedMigrations $ migrationStatusMissing status
+        void exitFailure
+      | migrationStatusPending status == [] -> do
+        putStrLn "Database is up-to-date."
+        void exitSuccess
+      | otherwise -> do
+        let migrations = migrationStatusPending status
+        forM_ migrations $ \m -> do
+          putStrLn $ "Running " ++ filename m
+          runMigration m
+        void exitSuccess
