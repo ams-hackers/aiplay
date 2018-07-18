@@ -1,11 +1,9 @@
 module Main where
 
-import Test.Hspec
 import Migrate
+import Test.Hspec
 
 {-# ANN module ("HLint: ignore Redundant do" :: String) #-}
 
 main :: IO ()
-main =
-  hspec $ do
-    testMigrate
+main = hspec $ do testMigrate
