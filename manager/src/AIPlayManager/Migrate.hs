@@ -2,7 +2,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_HADDOCK prune #-}
-{-# ANN module "HLint: ignore Use null" #-}
 
 {-|
 This module implements simple database migrations by running all the
@@ -25,6 +24,8 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BS.Char8
 import qualified Database.PostgreSQL.Simple as PG
 import qualified Database.PostgreSQL.Simple.FromRow as FromRow
+
+{-# ANN module ("HLint: ignore Use null" :: String) #-}
 
 data Record
 
