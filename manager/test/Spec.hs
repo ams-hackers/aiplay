@@ -10,11 +10,11 @@ import Data.ByteString.Lazy.Char8 (pack)
 import AIPlayManager.Migrate
 import AIPlayManager.SHA1
 
-{-# ANN module "HLint: ignore Redundant do" #-}
+{-# ANN module ("HLint: ignore Redundant do" :: String) #-}
 
-{-# ANN module "HLint: ignore Redundant $" #-}
+{-# ANN module ("HLint: ignore Redundant $" :: String) #-}
 
-{-# ANN module "HLint: ignore Reduce duplication" #-}
+{-# ANN module ("HLint: ignore Reduce duplication" :: String) #-}
 
 fakeMigration :: String -> Migration a
 fakeMigration x = Migration {filename = x, sha1sum = sha1LBS $ pack x}
