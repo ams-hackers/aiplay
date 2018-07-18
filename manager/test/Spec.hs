@@ -32,7 +32,7 @@ main =
         migrationStatusPending status `shouldBe` []
         migrationStatusMissing status `shouldBe` []
         migrationStatusChanged status `shouldBe` []
-        migrationStatusApplied status `shouldBe` migrations
+        migrationStatusApplied status `shouldBe` []
       it "should not do anything if the database is up-to-date" $ do
         let fileMigrations = migrations
             recordedMigrations = migrations
