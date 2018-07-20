@@ -1,6 +1,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS_HADDOCK prune #-}
 
 {-|
@@ -11,12 +12,11 @@ are not applied again.
 module AIPlayManager.Migrate where
 
 import Control.Monad
+import Data.FileEmbed (embedDir, makeRelativeToProject)
 import Data.Function
 import Data.List
 import Data.String
-import System.Directory
 import System.Exit
-import System.FilePath.Posix ((</>), isExtensionOf, takeFileName)
 import System.IO
 
 import AIPlayManager.SHA1
@@ -54,27 +54,25 @@ castAll = map cast
 consistentlyEqual :: Migration a -> Migration b -> Bool
 consistentlyEqual m1 m2 = m1 == cast m2 && sha1sum m1 == sha1sum m2
 
-migrationdir :: FilePath
-migrationdir = "./Migrations"
+--
+-- Files
+--
+migrationFiles :: [(FilePath, BS.ByteString)]
+migrationFiles = $(makeRelativeToProject "./Migrations" >>= embedDir)
 
 readMigrationFile :: Migration File -> IO BS.ByteString
-readMigrationFile m = BS.readFile $ migrationdir </> filename m
+readMigrationFile migration =
+  case lookup (filename migration) migrationFiles of
+    Just content -> return content
+    Nothing -> error "Couldn't read migration file."
 
-migrationFromFile :: FilePath -> IO (Migration File)
-migrationFromFile file = do
-  let filename = takeFileName file
-  sha1sum <- sha1File $ migrationdir </> file
-  return Migration {filename, sha1sum}
-
-listMigrationFiles :: IO [FilePath]
-listMigrationFiles = filter isMigrationFile <$> listDirectory "./Migrations"
-  where
-    isMigrationFile = (".sql" `isExtensionOf`)
-
--- | Return the list of available migration SQL files on the
--- migrations directory.
-availableMigrations :: IO [Migration File]
-availableMigrations = sort <$> listMigrationFiles >>= mapM migrationFromFile
+availableMigrations :: [Migration File]
+availableMigrations =
+  map
+    (\(filename, content) ->
+       let sha1sum = sha1BS content
+       in Migration {filename, sha1sum})
+    migrationFiles
 
 --
 -- Database
@@ -172,9 +170,8 @@ printFailedMigrations =
 migrate :: IO ()
 migrate = do
   initializeDatabase
-  available <- availableMigrations
   applied <- appliedMigrations
-  let status = compareMigrations available applied
+  let status = compareMigrations availableMigrations applied
   case status of
     _
       | migrationStatusChanged status /= [] -> do

@@ -3,6 +3,7 @@
 module AIPlayManager.SHA1
   ( SHA1
   , sha1LBS
+  , sha1BS
   , sha1File
   ) where
 
@@ -25,6 +26,10 @@ import qualified Data.ByteString.Lazy as LBS
 newtype SHA1 =
   SHA1 (Hash.Digest Hash.SHA1)
   deriving (Eq, Show)
+
+-- | Compute the hash of a lazy ByteString
+sha1BS :: BS.ByteString -> SHA1
+sha1BS = SHA1 . Hash.hash
 
 -- | Compute the hash of a lazy ByteString
 sha1LBS :: LBS.ByteString -> SHA1

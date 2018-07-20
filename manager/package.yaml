@@ -22,6 +22,7 @@ library:
     - postgresql-simple
     - cryptonite
     - memory
+    - file-embed
     
 executables:
   aiplay-manager:
