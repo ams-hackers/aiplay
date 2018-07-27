@@ -23,6 +23,7 @@ main = do
   putStrLn $ "Listening on " ++ show port
   finally
     (do conns <- acceptPlayers sock numberOfPlayers
+        close sock
         runGame conns)
     (close sock)
 
