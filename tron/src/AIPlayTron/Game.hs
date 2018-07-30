@@ -10,6 +10,8 @@ import qualified Data.Set as Set
 import Data.Map.Lazy (Map, (!?))
 import qualified Data.Map.Lazy as Map
 
+import Data.Maybe
+
 -- A position in the board
 newtype Coord =
   Coord (Int, Int)
@@ -36,15 +38,15 @@ data Game = Game
 emptyGame :: Game
 emptyGame =
   Game
-  { gameTaken = Set.empty
-  , gamePlayers =
-      Map.fromList
-        [ (Player 1, Alive $ Coord (10, 10))
-        , (Player 2, Alive $ Coord (5, 5))
-        , (Player 3, Dead)
-        ],
-    gameHistory = []
-  }
+    { gameTaken = Set.empty
+    , gamePlayers =
+        Map.fromList
+          [ (Player 1, Alive $ Coord (10, 10))
+          , (Player 2, Alive $ Coord (5, 5))
+          , (Player 3, Dead)
+          ]
+    , gameHistory = []
+    }
 
 -- * Basic operations
 alivePlayerState :: PlayerState -> Bool
@@ -53,9 +55,7 @@ alivePlayerState Dead = False
 
 getPlayerState :: Game -> Player -> PlayerState
 getPlayerState game player =
-  case Map.lookup player $ gamePlayers game of
-    Just state -> state
-    Nothing -> Dead
+  fromMaybe Dead (Map.lookup player $ gamePlayers game)
 
 -- | The players participating in this game.
 listPlayers :: Game -> [Player]
@@ -74,8 +74,7 @@ listAlivePlayers game =
 data FinishedGame = FinishedGame
   { finishedGame :: Game
   , finishedGameWinners :: [Player]
-  }
-  deriving (Show)
+  } deriving (Show)
 
 -- | A move is a possible action that a player can take
 data Move
@@ -123,11 +122,11 @@ getNewPlayerState player taken requestedCoords =
 updateGame :: Game -> Turn -> Game
 updateGame game turn =
   Game
-  { gameTaken = Set.union taken $ Set.fromList $ Map.elems requestedCoords
-  , gamePlayers =
-      Map.fromList [(player, newPlayerState player) | player <- players]
-  , gameHistory = (gameHistory game) ++ [turn]
-  }
+    { gameTaken = Set.union taken $ Set.fromList $ Map.elems requestedCoords
+    , gamePlayers =
+        Map.fromList [(player, newPlayerState player) | player <- players]
+    , gameHistory = gameHistory game ++ [turn]
+    }
   where
     players = listPlayers game
     taken = gameTaken game

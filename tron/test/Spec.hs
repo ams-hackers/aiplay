@@ -19,12 +19,7 @@ instance Arbitrary Player where
   arbitrary = Player <$> choose (0, 10)
 
 instance Arbitrary PlayerState where
-  arbitrary =
-    oneof
-      [ do coord <- arbitrary
-           return $ Alive coord
-      , return Dead
-      ]
+  arbitrary = oneof [Alive <$> arbitrary, return Dead]
 
 instance Arbitrary Move where
   arbitrary = elements [MoveUp, MoveDown, MoveLeft, MoveRight]

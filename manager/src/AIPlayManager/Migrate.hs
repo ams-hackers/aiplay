@@ -71,7 +71,7 @@ availableMigrations =
   map
     (\(filename, content) ->
        let sha1sum = sha1BS content
-       in Migration {filename, sha1sum})
+        in Migration {filename, sha1sum})
     migrationFiles
 
 --
@@ -153,12 +153,12 @@ matchingMigrations available applied =
 compareMigrations :: [Migration File] -> [Migration Record] -> MigrationStatus
 compareMigrations available applied =
   MigrationStatus
-  { migrationStatusPending = available \\ castAll applied
-  , migrationStatusMissing = applied \\ castAll available
-  , migrationStatusApplied =
-      [m1 | (m1, m2) <- matching, m1 `consistentlyEqual` m2]
-  , migrationStatusChanged = filter (not . uncurry consistentlyEqual) matching
-  }
+    { migrationStatusPending = available \\ castAll applied
+    , migrationStatusMissing = applied \\ castAll available
+    , migrationStatusApplied =
+        [m1 | (m1, m2) <- matching, m1 `consistentlyEqual` m2]
+    , migrationStatusChanged = filter (not . uncurry consistentlyEqual) matching
+    }
   where
     matching = matchingMigrations available applied
 
