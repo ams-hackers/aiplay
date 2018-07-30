@@ -33,7 +33,7 @@ instance Arbitrary Game where
   arbitrary = do
     taken <- arbitrary
     players <- arbitrary
-    return $ Game {gameTaken = taken, gamePlayers = players}
+    return $ Game {gameTaken = taken, gamePlayers = players, gameHistory = []}
 
 monotoneTaken :: Game -> Turn -> Bool
 monotoneTaken game turn = countTaken game <= countTaken game'

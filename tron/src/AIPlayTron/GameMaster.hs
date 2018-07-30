@@ -11,7 +11,6 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as IO
 import Network.Socket
 import System.IO
-import Data.Maybe
 import qualified Data.Map as Map
 
 port :: PortNumber

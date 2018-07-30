@@ -28,6 +28,7 @@ data PlayerState
 data Game = Game
   { gameTaken :: Set Coord
   , gamePlayers :: Map Player PlayerState
+  , gameHistory :: [Turn]
   } deriving (Show)
 
 -- * Construction
@@ -41,7 +42,8 @@ emptyGame =
         [ (Player 1, Alive $ Coord (10, 10))
         , (Player 2, Alive $ Coord (5, 5))
         , (Player 3, Dead)
-        ]
+        ],
+    gameHistory = []
   }
 
 -- * Basic operations
@@ -124,6 +126,7 @@ updateGame game turn =
   { gameTaken = Set.union taken $ Set.fromList $ Map.elems requestedCoords
   , gamePlayers =
       Map.fromList [(player, newPlayerState player) | player <- players]
+  , gameHistory = (gameHistory game) ++ [turn]
   }
   where
     players = listPlayers game
