@@ -49,6 +49,12 @@ alivePlayerState :: PlayerState -> Bool
 alivePlayerState (Alive _) = True
 alivePlayerState Dead = False
 
+getPlayerState :: Game -> Player -> PlayerState
+getPlayerState game player =
+  case Map.lookup player $ gamePlayers game of
+    Just state -> state
+    Nothing -> Dead
+
 -- | The players participating in this game.
 listPlayers :: Game -> [Player]
 listPlayers game = Map.keys $ gamePlayers game
@@ -67,6 +73,7 @@ data FinishedGame = FinishedGame
   { finishedGame :: Game
   , finishedGameWinners :: [Player]
   }
+  deriving (Show)
 
 -- | A move is a possible action that a player can take
 data Move

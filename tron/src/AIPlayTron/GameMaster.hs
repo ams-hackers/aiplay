@@ -3,6 +3,7 @@
 module AIPlayTron.GameMaster where
 
 import AIPlayTron.Protocol
+import qualified AIPlayTron.Game as Game
 import AIPlayTron.Socket
 import Control.Exception (finally)
 import Data.Char (isSpace)
@@ -10,6 +11,8 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as IO
 import Network.Socket
 import System.IO
+import Data.Maybe
+import qualified Data.Map as Map
 
 port :: PortNumber
 port = 4242
@@ -50,21 +53,47 @@ sendHello handle = do
   where
     msg = (`reply` handle)
 
-handleTurns :: [Handle] -> IO ()
-handleTurns handles = do
+getMove :: Game.PlayerState -> Maybe Command -> Maybe Game.Move
+getMove (Game.Alive (Game.Coord (x,  y))) (Just (Move x' y')) = d (x' - x) (y' - y)
+  where
+    d 1 0 = Just Game.MoveRight
+    d (-1) 0 = Just Game.MoveLeft
+    d 0 1 = Just Game.MoveDown
+    d 0 (-1) = Just Game.MoveUp
+    d _ _ = Nothing
+getMove _ _ = Nothing
+
+-- test2 = getMove (Game.Alive (Game.Coord (5, 5))) (Just $ Move 6 5)
+
+getTurn :: Game.Game -> [(Game.Player, Maybe Command)] -> Game.Turn
+getTurn game responses = Map.fromList [(player, move) | (player, Just move) <- currentStates]
+  where
+    currentStates = [(player, getMove (Game.getPlayerState game player) command) | (player, command) <- responses]
+
+-- test = getTurn Game.emptyGame [(Game.Player 1, Nothing), (Game.Player 2, Just $ Move 5 4), (Game.Player 3, Just $ Move 6 8)]
+
+
+handleTurns :: Game.Game -> [Handle] -> IO Game.FinishedGame
+handleTurns game handles = do
   replyAll Turn handles
-  _responses <-
+  playerCommands <-
     mapM
-      (\handle -> do
-         line <- readLine handle
-         return (handle, line))
-      handles
-  return ()
+      (\(idx, handle) -> do
+         maybeCommand <- readCommand handle
+         return (Game.Player idx, maybeCommand))
+      $ zip [1..] handles
+  let turn = getTurn game playerCommands
+  case Game.play game turn of
+    Left finishedGame -> return finishedGame
+    Right game' -> handleTurns game' handles
 
 runGame :: [(Socket, SockAddr)] -> IO ()
 runGame conns = do
   handles <- mapM getConnectionHandle conns
   mapM_ sendHello handles
-  handleTurns handles
+  let game = Game.emptyGame
+  finishedGame <- handleTurns game handles
+  -- putStrLn $ "Finished game " ++ show finishedGame
+  print finishedGame
   mapM_ hClose handles
   return ()
