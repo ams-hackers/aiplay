@@ -30,6 +30,7 @@ data PlayerState
 data Game = Game
   { gameTaken :: Set Coord
   , gamePlayers :: Map Player PlayerState
+  , gameInitial :: Game
   , gameHistory :: [Turn]
   } deriving (Show)
 
@@ -38,15 +39,16 @@ data Game = Game
 emptyGame :: Game
 emptyGame =
   Game
-    { gameTaken = Set.empty
-    , gamePlayers =
-        Map.fromList
-          [ (Player 1, Alive $ Coord (10, 10))
-          , (Player 2, Alive $ Coord (5, 5))
-          , (Player 3, Dead)
-          ]
-    , gameHistory = []
-    }
+  { gameTaken = Set.empty
+  , gamePlayers =
+      Map.fromList
+        [ (Player 1, Alive $ Coord (10, 10))
+        , (Player 2, Alive $ Coord (5, 5))
+        , (Player 3, Dead)
+        ]
+  , gameInitial = emptyGame
+  , gameHistory = []
+  }
 
 -- * Basic operations
 alivePlayerState :: PlayerState -> Bool
@@ -121,12 +123,12 @@ getNewPlayerState player taken requestedCoords =
 -- Get the resulting game after playing a turn.
 updateGame :: Game -> Turn -> Game
 updateGame game turn =
-  Game
-    { gameTaken = Set.union taken $ Set.fromList $ Map.elems requestedCoords
-    , gamePlayers =
-        Map.fromList [(player, newPlayerState player) | player <- players]
-    , gameHistory = gameHistory game ++ [turn]
-    }
+  game
+  { gameTaken = Set.union taken $ Set.fromList $ Map.elems requestedCoords
+  , gamePlayers =
+      Map.fromList [(player, newPlayerState player) | player <- players]
+  , gameHistory = gameHistory game ++ [turn]
+  }
   where
     players = listPlayers game
     taken = gameTaken game
