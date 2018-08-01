@@ -14,7 +14,7 @@ import Data.Text as Text
 import Data.Set (Set)
 import qualified Data.Set as Set
 
-import Data.Map.Lazy (Map, (!?))
+import Data.Map.Lazy (Map)
 import qualified Data.Map.Lazy as Map
 
 -- A position in the board
@@ -38,6 +38,11 @@ data Game = Game
   , gameInitial :: Game
   , gameHistory :: [Turn]
   }
+
+instance Show Game where
+  show Game {gameTaken, gamePlayers} =
+    "Game { taken=" ++
+    show gameTaken ++ " , players=" ++ show gamePlayers ++ "}"
 
 -- * Construction
 -- | Return an empty game
@@ -81,43 +86,27 @@ listAlivePlayers game =
 data FinishedGame = FinishedGame
   { finishedGame :: Game
   , finishedGameWinners :: [Player]
-  }
-
--- | A move is a possible action that a player can take
-data Move
-  = MoveUp
-  | MoveDown
-  | MoveLeft
-  | MoveRight
-  deriving (Show, Eq)
+  } deriving (Show)
 
 -- | A turn in the game. All user moves are to be considered
 -- simultaneously.
-type Turn = Map Player Move
+type Turn = Map Player Coord
 
-movePlayer :: PlayerState -> Move -> Maybe Coord
-movePlayer (Alive (Coord (x, y))) MoveUp = Just $ Coord (x, y - 1)
-movePlayer (Alive (Coord (x, y))) MoveDown = Just $ Coord (x, y + 1)
-movePlayer (Alive (Coord (x, y))) MoveLeft = Just $ Coord (x - 1, y)
-movePlayer (Alive (Coord (x, y))) MoveRight = Just $ Coord (x + 1, y)
-movePlayer Dead _ = Nothing
+distance :: Coord -> Coord -> Int
+distance (Coord (x, y)) (Coord (x', y')) = abs (x' - x) + abs (y' - y)
 
--- Return a map of where each player would like to move in this turn
-turnRequestedCoords :: Game -> Turn -> Map Player Coord
-turnRequestedCoords game turn =
-  Map.mapMaybeWithKey playerCoord (gamePlayers game)
-  where
-    playerCoord player playerState = do
-      move <- turn !? player
-      movePlayer playerState move
+moveInvalidDistance :: Coord -> Coord -> Bool
+moveInvalidDistance c1 c2 = distance c1 c2 /= 1
 
-getNewPlayerState :: Player -> Set Coord -> Map Player Coord -> PlayerState
-getNewPlayerState player taken requestedCoords =
+getNewPlayerState ::
+     PlayerState -> Player -> Set Coord -> Map Player Coord -> PlayerState
+getNewPlayerState Dead _ _ _ = Dead
+getNewPlayerState (Alive sourceCoords) player taken requestedCoords =
   case Map.lookup player requestedCoords of
-    Just targetCoord ->
-      if isColliding targetCoord
-        then Dead
-        else Alive targetCoord
+    Just targetCoord
+      | isColliding targetCoord -> Dead
+      | moveInvalidDistance sourceCoords targetCoord -> Dead
+      | otherwise -> Alive targetCoord
     Nothing -> Dead
   where
     otherPlayersCoords =
@@ -129,7 +118,7 @@ getNewPlayerState player taken requestedCoords =
 updateGame :: Game -> Turn -> Game
 updateGame game turn =
   game
-  { gameTaken = Set.union taken $ Set.fromList $ Map.elems requestedCoords
+  { gameTaken = Set.union taken $ Set.fromList $ Map.elems turn
   , gamePlayers =
       Map.fromList [(player, newPlayerState player) | player <- players]
   , gameHistory = gameHistory game ++ [turn]
@@ -137,8 +126,8 @@ updateGame game turn =
   where
     players = listPlayers game
     taken = gameTaken game
-    requestedCoords = turnRequestedCoords game turn
-    newPlayerState player = getNewPlayerState player taken requestedCoords
+    newPlayerState player =
+      getNewPlayerState (getPlayerState game player) player taken turn
 
 -- Return an array of winners. There could be multiple winners if
 -- there is a tie. It will return Nothing if the game is not finished
@@ -176,14 +165,6 @@ instance ToJSON Player where
 
 instance ToJSONKey Player where
   toJSONKey = toJSONKeyText $ \(Player i) -> Text.pack $ show i
-
-instance ToJSON Move where
-  toJSON m =
-    case m of
-      MoveUp -> "up"
-      MoveDown -> "down"
-      MoveLeft -> "left"
-      MoveRight -> "right"
 
 instance ToJSON FinishedGame where
   toJSON FinishedGame {finishedGame, finishedGameWinners} =
