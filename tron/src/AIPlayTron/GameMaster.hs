@@ -2,16 +2,19 @@
 
 module AIPlayTron.GameMaster where
 
-import qualified AIPlayTron.Game as Game
-import AIPlayTron.Protocol
-import AIPlayTron.Socket
 import Control.Exception (finally)
+import Data.Aeson (encode)
+import qualified Data.ByteString.Lazy as LBS
 import Data.Char (isSpace)
 import qualified Data.Map as Map
 import qualified Data.Text as T
 import qualified Data.Text.IO as IO
 import Network.Socket
 import System.IO
+
+import qualified AIPlayTron.Game as Game
+import AIPlayTron.Protocol
+import AIPlayTron.Socket
 
 port :: PortNumber
 port = 4242
@@ -94,5 +97,5 @@ runGame conns = do
   mapM_ sendHello handles
   let game = Game.emptyGame
   finishedGame <- handleTurns game handles
-  -- putStrLn $ "Finished game " ++ show finishedGame
+  LBS.writeFile "game-history.json" $ encode finishedGame
   mapM_ hClose handles
