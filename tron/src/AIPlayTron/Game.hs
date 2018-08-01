@@ -1,16 +1,21 @@
 {-# OPTIONS_HADDOCK prune #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
 {-| Model the rules of the game Tron.
 -}
 module AIPlayTron.Game where
+
+import Data.Aeson
+import Data.Aeson.Types
+import Data.Maybe
+import Data.Text as Text
 
 import Data.Set (Set)
 import qualified Data.Set as Set
 
 import Data.Map.Lazy (Map, (!?))
 import qualified Data.Map.Lazy as Map
-
-import Data.Maybe
 
 -- A position in the board
 newtype Coord =
@@ -32,7 +37,7 @@ data Game = Game
   , gamePlayers :: Map Player PlayerState
   , gameInitial :: Game
   , gameHistory :: [Turn]
-  } deriving (Show)
+  }
 
 -- * Construction
 -- | Return an empty game
@@ -76,7 +81,7 @@ listAlivePlayers game =
 data FinishedGame = FinishedGame
   { finishedGame :: Game
   , finishedGameWinners :: [Player]
-  } deriving (Show)
+  }
 
 -- | A move is a possible action that a player can take
 data Move
@@ -135,7 +140,6 @@ updateGame game turn =
     requestedCoords = turnRequestedCoords game turn
     newPlayerState player = getNewPlayerState player taken requestedCoords
 
-{- foo -}
 -- Return an array of winners. There could be multiple winners if
 -- there is a tie. It will return Nothing if the game is not finished
 -- yet.
@@ -160,3 +164,36 @@ play beforeGame turn =
     Nothing -> Right afterGame
   where
     afterGame = updateGame beforeGame turn
+
+--
+-- JSON Serialization
+--
+instance ToJSON Coord where
+  toJSON (Coord c) = toJSON c
+
+instance ToJSON Player where
+  toJSON (Player i) = toJSON i
+
+instance ToJSONKey Player where
+  toJSONKey = toJSONKeyText $ \(Player i) -> Text.pack $ show i
+
+instance ToJSON Move where
+  toJSON m =
+    case m of
+      MoveUp -> "up"
+      MoveDown -> "down"
+      MoveLeft -> "left"
+      MoveRight -> "right"
+
+instance ToJSON FinishedGame where
+  toJSON FinishedGame {finishedGame, finishedGameWinners} =
+    object
+      [ "walls" .= gameTaken initial
+      , "startPositions" .= Map.mapMaybe playerStateCoord (gamePlayers initial)
+      , "turns" .= gameHistory finishedGame
+      , "winners" .= finishedGameWinners
+      ]
+    where
+      initial = gameInitial finishedGame
+      playerStateCoord (Alive c) = Just c
+      playerStateCoord Dead = Nothing

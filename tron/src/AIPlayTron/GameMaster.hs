@@ -95,5 +95,4 @@ runGame conns = do
   let game = Game.emptyGame
   finishedGame <- handleTurns game handles
   -- putStrLn $ "Finished game " ++ show finishedGame
-  print finishedGame
   mapM_ hClose handles
